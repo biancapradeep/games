@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🐶 Puppy's Number Adventure</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --river-blue: #4fb3d9;
+            --river-dark: #2d8ab8;
+            --grass-green: #7cb342;
+            --grass-dark: #558b2f;
+            --stone-gray: #8d9a9b;
+            --stone-light: #b8c4c5;
+            --puppy-brown: #8b5a2b;
+            --puppy-light: #d4a574;
+            --sky-blue: #87ceeb;
+            --cloud-white: #ffffff;
+            --sunset-orange: #ffb347;
+            --sunset-pink: #ff6b9d;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: linear-gradient(180deg, #87ceeb 0%, #b4e7f8 40%, #e8f4f8 100%);
+        }
+
+        .game-container {
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2.5rem;
+            color: #ff6b9d;
+            text-shadow: 3px 3px 0 #fff, 5px 5px 0 rgba(0,0,0,0.1);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        /* River Scene */
+        .river-scene {
+            width: 100%;
+            max-width: 1200px;
+            height: 200px;
+            position: relative;
+            background: linear-gradient(180deg, 
+                var(--grass-green) 0%, 
+                var(--grass-green) 15%,
+                var(--grass-dark) 15%,
+                var(--grass-dark) 20%,
+                var(--river-blue) 20%,
+                var(--river-dark) 80%,
+                var(--grass-dark) 80%,
+                var(--grass-dark) 85%,
+                var(--grass-green) 85%
+            );
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+        }
+
+        /* Animated water waves */
+        .water-waves {
+            position: absolute;
+            top: 20%;
+            left: 0;
+            right: 0;
+            height: 60%;
+            overflow: hidden;
+        }
+
+        .wave {
+            position: absolute;
+            width: 200%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                90deg,
+                transparent 0px,
+                rgba(255,255,255,0.1) 20px,
+                transparent 40px
+            );
+            animation: wave-flow 3s linear infinite;
+        }
+
+        .wave:nth-child(2) {
+            animation-delay: -1.5s;
+            opacity: 0.5;
+        }
+
+        @keyframes wave-flow {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Pebble stones container */
+        .stones-container {
+            position: absolute;
+            top: 50%;
+            left: 2%;
+            right: 2%;
+            transform: translateY(-50%);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stone {
+            width: 40px;
+            height: 30px;
+            background: linear-gradient(145deg, var(--stone-light) 0%, var(--stone-gray) 50%, #6b7677 100%);
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            position: relative;
+            box-shadow: 
+                0 5px 15px rgba(0,0,0,0.3),
+                inset 0 -5px 10px rgba(0,0,0,0.2),
+                inset 0 5px 10px rgba(255,255,255,0.3);
+            animation: stone-bob 2s ease-in-out infinite;
+            transition: all 0.3s ease;
+        }
+
+        .stone::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 8px;
+            width: 10px;
+            height: 6px;
+            background: rgba(255,255,255,0.4);
+            border-radius: 50%;
+        }
+
+        .stone:nth-child(odd) {
+            animation-delay: -1s;
+        }
+
+        .stone.completed {
+            background: linear-gradient(145deg, #98d977 0%, #7cb342 50%, #558b2f 100%);
+        }
+
+        .stone.current {
+            transform: scale(1.2);
+            box-shadow: 
+                0 5px 20px rgba(255,107,157,0.5),
+                inset 0 -5px 10px rgba(0,0,0,0.2),
+                inset 0 5px 10px rgba(255,255,255,0.3);
+        }
+
+        @keyframes stone-bob {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+
+        /* Cute Puppy */
+        .puppy {
+            position: absolute;
+            width: 50px;
+            height: 55px;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            z-index: 10;
+            filter: drop-shadow(0 5px 10px rgba(0,0,0,0.3));
+        }
+
+        .puppy.jumping {
+            animation: puppy-jump 0.5s ease-out;
+        }
+
+        @keyframes puppy-jump {
+            0% { transform: translateY(0) scale(1); }
+            30% { transform: translateY(-40px) scale(1.1); }
+            50% { transform: translateY(-50px) scale(1.05) rotate(5deg); }
+            70% { transform: translateY(-30px) scale(1.1); }
+            100% { transform: translateY(0) scale(1); }
+        }
+
+        .puppy-body {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 35px;
+            height: 25px;
+            background: linear-gradient(145deg, var(--puppy-light) 0%, var(--puppy-brown) 100%);
+            border-radius: 50% 50% 45% 45%;
+        }
+
+        .puppy-head {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 28px;
+            background: linear-gradient(145deg, var(--puppy-light) 0%, var(--puppy-brown) 100%);
+            border-radius: 50% 50% 45% 45%;
+        }
+
+        .puppy-ear {
+            position: absolute;
+            width: 12px;
+            height: 18px;
+            background: var(--puppy-brown);
+            border-radius: 50% 50% 40% 40%;
+            top: -5px;
+        }
+
+        .puppy-ear.left {
+            left: 0px;
+            transform: rotate(-20deg);
+        }
+
+        .puppy-ear.right {
+            right: 0px;
+            transform: rotate(20deg);
+        }
+
+        .puppy-eye {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #2c1810;
+            border-radius: 50%;
+            top: 10px;
+        }
+
+        .puppy-eye.left { left: 5px; }
+        .puppy-eye.right { right: 5px; }
+
+        .puppy-eye::after {
+            content: '';
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            background: white;
+            border-radius: 50%;
+            top: 1px;
+            left: 1px;
+        }
+
+        .puppy-nose {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 6px;
+            background: #2c1810;
+            border-radius: 50% 50% 50% 50% / 30% 30% 70% 70%;
+        }
+
+        .puppy-tongue {
+            position: absolute;
+            bottom: 0px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 6px;
+            height: 8px;
+            background: #ff6b9d;
+            border-radius: 0 0 50% 50%;
+            animation: tongue-wag 0.3s ease-in-out infinite alternate;
+        }
+
+        @keyframes tongue-wag {
+            0% { transform: translateX(-50%) rotate(-5deg); }
+            100% { transform: translateX(-50%) rotate(5deg); }
+        }
+
+        .puppy-tail {
+            position: absolute;
+            bottom: 15px;
+            right: -5px;
+            width: 15px;
+            height: 8px;
+            background: var(--puppy-brown);
+            border-radius: 50%;
+            transform-origin: left center;
+            animation: tail-wag 0.2s ease-in-out infinite alternate;
+        }
+
+        @keyframes tail-wag {
+            0% { transform: rotate(-15deg); }
+            100% { transform: rotate(15deg); }
+        }
+
+        .puppy-leg {
+            position: absolute;
+            width: 8px;
+            height: 12px;
+            background: var(--puppy-brown);
+            border-radius: 0 0 4px 4px;
+            bottom: 0;
+        }
+
+        .puppy-leg.front-left { left: 8px; }
+        .puppy-leg.front-right { left: 18px; }
+        .puppy-leg.back-left { right: 18px; }
+        .puppy-leg.back-right { right: 8px; }
+
+        /* Progress indicator */
+        .progress-text {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.2rem;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .question-number {
+            color: var(--sunset-pink);
+        }
+
+        /* Game panels */
+        .game-panel {
+            background: white;
+            border-radius: 25px;
+            padding: 30px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.1);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .game-panel h2 {
+            font-family: 'Fredoka One', cursive;
+            color: #ff6b9d;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .game-panel p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        /* Input styles */
+        .number-input {
+            width: 150px;
+            height: 60px;
+            font-size: 2rem;
+            font-family: 'Fredoka One', cursive;
+            text-align: center;
+            border: 4px solid #e0e0e0;
+            border-radius: 15px;
+            outline: none;
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+        .number-input:focus {
+            border-color: #ff6b9d;
+            box-shadow: 0 0 20px rgba(255,107,157,0.3);
+        }
+
+        /* Button styles */
+        .btn {
+            background: linear-gradient(145deg, #ff6b9d 0%, #ff4778 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.2rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(255,71,120,0.4);
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(255,71,120,0.5);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn.secondary {
+            background: linear-gradient(145deg, #4fb3d9 0%, #2d8ab8 100%);
+            box-shadow: 0 5px 20px rgba(45,138,184,0.4);
+        }
+
+        .btn.secondary:hover {
+            box-shadow: 0 8px 30px rgba(45,138,184,0.5);
+        }
+
+        /* Choice buttons */
+        .choices-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .choice-btn {
+            background: linear-gradient(145deg, #f8f9fa 0%, #e9ecef 100%);
+            border: 3px solid #e0e0e0;
+            padding: 15px 25px;
+            font-family: 'Nunito', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #333;
+        }
+
+        .choice-btn:hover {
+            border-color: #ff6b9d;
+            background: linear-gradient(145deg, #fff0f5 0%, #ffe4ec 100%);
+            transform: translateX(10px);
+        }
+
+        .choice-btn.correct {
+            background: linear-gradient(145deg, #d4edda 0%, #98d977 100%);
+            border-color: #7cb342;
+            animation: correct-pulse 0.5s ease;
+        }
+
+        .choice-btn.wrong {
+            background: linear-gradient(145deg, #f8d7da 0%, #f5c6cb 100%);
+            border-color: #dc3545;
+            animation: wrong-shake 0.5s ease;
+        }
+
+        @keyframes correct-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes wrong-shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-10px); }
+            40%, 80% { transform: translateX(10px); }
+        }
+
+        /* Question display */
+        .question-text {
+            font-family: 'Fredoka One', cursive;
+            font-size: 1.3rem;
+            color: #333;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(145deg, #fff9e6 0%, #fff3cd 100%);
+            border-radius: 15px;
+            border: 3px solid #ffc107;
+        }
+
+        /* Result screen */
+        .result-emoji {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .result-message {
+            font-family: 'Fredoka One', cursive;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .result-message.win {
+            color: #7cb342;
+        }
+
+        .result-message.lose {
+            color: #dc3545;
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Clouds decoration */
+        .cloud {
+            position: fixed;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.8;
+            z-index: -1;
+        }
+
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+
+        .cloud-1 {
+            width: 100px;
+            height: 40px;
+            top: 5%;
+            left: 10%;
+            animation: float-cloud 20s linear infinite;
+        }
+
+        .cloud-1::before {
+            width: 50px;
+            height: 50px;
+            top: -25px;
+            left: 15px;
+        }
+
+        .cloud-1::after {
+            width: 40px;
+            height: 40px;
+            top: -20px;
+            left: 45px;
+        }
+
+        .cloud-2 {
+            width: 80px;
+            height: 30px;
+            top: 12%;
+            right: 15%;
+            animation: float-cloud 25s linear infinite reverse;
+        }
+
+        .cloud-2::before {
+            width: 40px;
+            height: 40px;
+            top: -20px;
+            left: 10px;
+        }
+
+        .cloud-2::after {
+            width: 30px;
+            height: 30px;
+            top: -15px;
+            left: 35px;
+        }
+
+        @keyframes float-cloud {
+            0% { transform: translateX(-100px); }
+            100% { transform: translateX(calc(100vw + 100px)); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8rem; }
+            .river-scene { height: 150px; }
+            .stone { width: 30px; height: 22px; }
+            .puppy { width: 35px; height: 40px; }
+            .game-panel { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Decorative clouds -->
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+
+    <div class="game-container">
+        <h1>🐶 Puppy's Number Adventure</h1>
+        <p class="subtitle">Help the puppy cross the river by guessing the secret number!</p>
+
+        <!-- River Scene with Puppy and Stones -->
+        <div class="river-scene">
+            <div class="water-waves">
+                <div class="wave"></div>
+                <div class="wave"></div>
+            </div>
+            <div class="stones-container" id="stonesContainer">
+                <!-- 20 stones will be generated here -->
+            </div>
+            <div class="puppy" id="puppy">
+                <div class="puppy-body">
+                    <div class="puppy-leg front-left"></div>
+                    <div class="puppy-leg front-right"></div>
+                    <div class="puppy-leg back-left"></div>
+                    <div class="puppy-leg back-right"></div>
+                    <div class="puppy-tail"></div>
+                </div>
+                <div class="puppy-head">
+                    <div class="puppy-ear left"></div>
+                    <div class="puppy-ear right"></div>
+                    <div class="puppy-eye left"></div>
+                    <div class="puppy-eye right"></div>
+                    <div class="puppy-nose"></div>
+                    <div class="puppy-tongue"></div>
+                </div>
+            </div>
+        </div>
+
+        <p class="progress-text" id="progressText">Question <span class="question-number">0</span> of 20</p>
+
+        <!-- Setup Panel - Player 1 enters secret number -->
+        <div class="game-panel" id="setupPanel">
+            <h2>🎮 Let's Play!</h2>
+            <p>Player 1: Enter a secret number between 1 and 100.<br>Then let Player 2 guess it in 20 questions!</p>
+            <input type="number" class="number-input" id="secretNumber" min="1" max="100" placeholder="?">
+            <br><br>
+            <button class="btn" onclick="startGame()">Start Game! 🚀</button>
+        </div>
+
+        <!-- Game Panel - Questions and choices -->
+        <div class="game-panel hidden" id="gamePanel">
+            <div class="question-text" id="questionText">
+                <!-- Question will appear here -->
+            </div>
+            <div class="choices-container" id="choicesContainer">
+                <!-- Choices will appear here -->
+            </div>
+        </div>
+
+        <!-- Result Panel -->
+        <div class="game-panel hidden" id="resultPanel">
+            <div class="result-emoji" id="resultEmoji">🎉</div>
+            <p class="result-message" id="resultMessage">You Won!</p>
+            <p id="resultDetails"></p>
+            <button class="btn" onclick="resetGame()">Play Again! 🔄</button>
+        </div>
+    </div>
+
+    <script>
+        // Game state
+        let secretNumber = 0;
+        let currentQuestion = 0;
+        let minRange = 1;
+        let maxRange = 100;
+        let gameOver = false;
+
+        // Question types
+        const questionTypes = [
+            'comparison',
+            'even_odd',
+            'divisibility',
+            'range',
+            'digit_sum',
+            'guess'
+        ];
+
+        // Initialize stones
+        function initializeStones() {
+            const container = document.getElementById('stonesContainer');
+            container.innerHTML = '';
+            for (let i = 0; i < 20; i++) {
+                const stone = document.createElement('div');
+                stone.className = 'stone';
+                stone.id = `stone-${i}`;
+                container.appendChild(stone);
+            }
+            positionPuppy(-1);
+        }
+
+        // Position puppy on a stone
+        function positionPuppy(stoneIndex) {
+            const puppy = document.getElementById('puppy');
+            const container = document.getElementById('stonesContainer');
+            
+            if (stoneIndex < 0) {
+                // Start position (before first stone)
+                puppy.style.left = '0%';
+                puppy.style.top = '50%';
+                puppy.style.transform = 'translate(-50%, -80%)';
+            } else if (stoneIndex >= 20) {
+                // End position (after last stone)
+                puppy.style.left = '100%';
+                puppy.style.top = '50%';
+                puppy.style.transform = 'translate(-50%, -80%)';
+            } else {
+                const stone = document.getElementById(`stone-${stoneIndex}`);
+                const containerRect = container.getBoundingClientRect();
+                const stoneRect = stone.getBoundingClientRect();
+                
+                const leftPercent = ((stoneRect.left - containerRect.left) + stoneRect.width / 2) / containerRect.width * 96 + 2;
+                
+                puppy.style.left = `${leftPercent}%`;
+                puppy.style.top = '50%';
+                puppy.style.transform = 'translate(-50%, -80%)';
+            }
+        }
+
+        // Make puppy jump to next stone
+        function puppyJump() {
+            const puppy = document.getElementById('puppy');
+            puppy.classList.add('jumping');
+            
+            // Update stones
+            if (currentQuestion > 0) {
+                const prevStone = document.getElementById(`stone-${currentQuestion - 1}`);
+                if (prevStone) {
+                    prevStone.classList.remove('current');
+                    prevStone.classList.add('completed');
+                }
+            }
+            
+            if (currentQuestion < 20) {
+                const currentStone = document.getElementById(`stone-${currentQuestion}`);
+                if (currentStone) {
+                    currentStone.classList.add('current');
+                }
+            }
+            
+            setTimeout(() => {
+                positionPuppy(currentQuestion);
+                setTimeout(() => {
+                    puppy.classList.remove('jumping');
+                }, 500);
+            }, 250);
+        }
+
+        // Start the game
+        function startGame() {
+            const input = document.getElementById('secretNumber');
+            const num = parseInt(input.value);
+            
+            if (isNaN(num) || num < 1 || num > 100) {
+                alert('Please enter a number between 1 and 100! 🔢');
+                return;
+            }
+            
+            secretNumber = num;
+            currentQuestion = 0;
+            minRange = 1;
+            maxRange = 100;
+            gameOver = false;
+            
+            document.getElementById('setupPanel').classList.add('hidden');
+            document.getElementById('gamePanel').classList.remove('hidden');
+            
+            initializeStones();
+            generateQuestion();
+        }
+
+        // Generate a question based on current game state
+        function generateQuestion() {
+            if (gameOver) return;
+            
+            currentQuestion++;
+            puppyJump();
+            
+            document.getElementById('progressText').innerHTML = 
+                `Question <span class="question-number">${currentQuestion}</span> of 20`;
+            
+            // On last few questions or when range is small, offer direct guesses
+            const rangeSize = maxRange - minRange + 1;
+            
+            let questionData;
+            
+            if (rangeSize <= 5 || currentQuestion >= 18) {
+                questionData = generateGuessQuestion();
+            } else if (currentQuestion <= 5) {
+                // Early game - use comparison questions to narrow down
+                questionData = generateComparisonQuestion();
+            } else {
+                // Mix of question types
+                const rand = Math.random();
+                if (rand < 0.4) {
+                    questionData = generateComparisonQuestion();
+                } else if (rand < 0.6) {
+                    questionData = generateEvenOddQuestion();
+                } else if (rand < 0.8) {
+                    questionData = generateDivisibilityQuestion();
+                } else {
+                    questionData = generateRangeQuestion();
+                }
+            }
+            
+            displayQuestion(questionData);
+        }
+
+        // Generate comparison question
+        function generateComparisonQuestion() {
+            const mid = Math.floor((minRange + maxRange) / 2);
+            
+            return {
+                text: `Is the number greater than ${mid}? 🤔`,
+                choices: [
+                    { text: `Yes, it's greater than ${mid} 📈`, action: () => { minRange = mid + 1; generateQuestion(); } },
+                    { text: `No, it's ${mid} or less 📉`, action: () => { maxRange = mid; generateQuestion(); } },
+                    { text: `I think it's exactly ${mid}! 🎯`, action: () => checkGuess(mid) }
+                ]
+            };
+        }
+
+        // Generate even/odd question
+        function generateEvenOddQuestion() {
+            return {
+                text: `Is the number even or odd? 🔢`,
+                choices: [
+                    { text: `It's EVEN (2, 4, 6...) ✌️`, action: () => { updateRangeByParity(true); generateQuestion(); } },
+                    { text: `It's ODD (1, 3, 5...) ☝️`, action: () => { updateRangeByParity(false); generateQuestion(); } }
+                ]
+            };
+        }
+
+        // Update range based on parity guess
+        function updateRangeByParity(guessedEven) {
+            const isEven = secretNumber % 2 === 0;
+            if (guessedEven !== isEven) {
+                // Wrong guess - they'll figure it out on next question
+            }
+            // We track this info but don't eliminate numbers (player might be wrong)
+        }
+
+        // Generate divisibility question
+        function generateDivisibilityQuestion() {
+            const divisors = [3, 5, 7, 10];
+            const divisor = divisors[Math.floor(Math.random() * divisors.length)];
+            
+            return {
+                text: `Is the number divisible by ${divisor}? 🧮`,
+                choices: [
+                    { text: `Yes, divisible by ${divisor} ✅`, action: () => generateQuestion() },
+                    { text: `No, not divisible by ${divisor} ❌`, action: () => generateQuestion() }
+                ]
+            };
+        }
+
+        // Generate range question
+        function generateRangeQuestion() {
+            const rangeSize = maxRange - minRange + 1;
+            const third = Math.floor(rangeSize / 3);
+            const low = minRange + third;
+            const high = maxRange - third;
+            
+            return {
+                text: `Where does the number fall? 📊`,
+                choices: [
+                    { text: `Low range (${minRange} - ${low}) 🔽`, action: () => { maxRange = low; generateQuestion(); } },
+                    { text: `Middle range (${low + 1} - ${high - 1}) ➡️`, action: () => { minRange = low + 1; maxRange = high - 1; generateQuestion(); } },
+                    { text: `High range (${high} - ${maxRange}) 🔼`, action: () => { minRange = high; generateQuestion(); } }
+                ]
+            };
+        }
+
+        // Generate direct guess question
+        function generateGuessQuestion() {
+            const choices = [];
+            const numbersToShow = Math.min(4, maxRange - minRange + 1);
+            const step = Math.max(1, Math.floor((maxRange - minRange + 1) / numbersToShow));
+            
+            const numbers = [];
+            for (let i = 0; i < numbersToShow && minRange + i * step <= maxRange; i++) {
+                numbers.push(minRange + i * step);
+            }
+            
+            // Make sure the secret number has a chance to be included
+            if (!numbers.includes(secretNumber) && secretNumber >= minRange && secretNumber <= maxRange) {
+                numbers[Math.floor(Math.random() * numbers.length)] = secretNumber;
+            }
+            
+            // Shuffle
+            numbers.sort(() => Math.random() - 0.5);
+            
+            numbers.forEach(num => {
+                choices.push({
+                    text: `Is it ${num}? 🎯`,
+                    action: () => checkGuess(num)
+                });
+            });
+            
+            if (choices.length < 4 && minRange !== maxRange) {
+                choices.push({
+                    text: `None of these! 🤷`,
+                    action: () => {
+                        numbers.forEach(n => {
+                            if (n === minRange) minRange++;
+                            if (n === maxRange) maxRange--;
+                        });
+                        generateQuestion();
+                    }
+                });
+            }
+            
+            return {
+                text: `Take a guess! The number is between ${minRange} and ${maxRange} 🎲`,
+                choices: choices
+            };
+        }
+
+        // Display question and choices
+        function displayQuestion(questionData) {
+            document.getElementById('questionText').textContent = questionData.text;
+            
+            const container = document.getElementById('choicesContainer');
+            container.innerHTML = '';
+            
+            questionData.choices.forEach((choice, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'choice-btn';
+                btn.textContent = choice.text;
+                btn.onclick = () => {
+                    if (currentQuestion >= 20 && !choice.text.includes('Is it')) {
+                        endGame(false);
+                    } else {
+                        choice.action();
+                    }
+                };
+                container.appendChild(btn);
+            });
+            
+            // Check if out of questions
+            if (currentQuestion >= 20) {
+                setTimeout(() => {
+                    if (!gameOver) {
+                        const btns = container.querySelectorAll('.choice-btn');
+                        btns.forEach(btn => {
+                            if (!btn.textContent.includes('Is it')) {
+                                btn.disabled = true;
+                                btn.style.opacity = '0.5';
+                            }
+                        });
+                    }
+                }, 100);
+            }
+        }
+
+        // Check if guess is correct
+        function checkGuess(guess) {
+            if (guess === secretNumber) {
+                endGame(true);
+            } else {
+                // Show wrong feedback
+                const btns = document.querySelectorAll('.choice-btn');
+                btns.forEach(btn => {
+                    if (btn.textContent.includes(guess)) {
+                        btn.classList.add('wrong');
+                    }
+                });
+                
+                // Update range
+                if (guess < secretNumber) {
+                    minRange = Math.max(minRange, guess + 1);
+                } else {
+                    maxRange = Math.min(maxRange, guess - 1);
+                }
+                
+                setTimeout(() => {
+                    if (currentQuestion >= 20) {
+                        endGame(false);
+                    } else {
+                        generateQuestion();
+                    }
+                }, 800);
+            }
+        }
+
+        // End the game
+        function endGame(won) {
+            gameOver = true;
+            
+            document.getElementById('gamePanel').classList.add('hidden');
+            document.getElementById('resultPanel').classList.remove('hidden');
+            
+            if (won) {
+                // Complete puppy's journey
+                for (let i = currentQuestion; i < 20; i++) {
+                    const stone = document.getElementById(`stone-${i}`);
+                    if (stone) stone.classList.add('completed');
+                }
+                positionPuppy(20);
+                
+                document.getElementById('resultEmoji').textContent = '🎉🐶🏆';
+                document.getElementById('resultMessage').textContent = 'Amazing! You Won!';
+                document.getElementById('resultMessage').className = 'result-message win';
+                document.getElementById('resultDetails').textContent = 
+                    `You guessed ${secretNumber} in ${currentQuestion} questions! The puppy made it across! 🌟`;
+            } else {
+                document.getElementById('resultEmoji').textContent = '😢🐶💔';
+                document.getElementById('resultMessage').textContent = 'Oh No! Out of Questions!';
+                document.getElementById('resultMessage').className = 'result-message lose';
+                document.getElementById('resultDetails').textContent = 
+                    `The secret number was ${secretNumber}. The puppy needs a break. Try again! 💪`;
+            }
+        }
+
+        // Reset the game
+        function resetGame() {
+            document.getElementById('resultPanel').classList.add('hidden');
+            document.getElementById('setupPanel').classList.remove('hidden');
+            document.getElementById('secretNumber').value = '';
+            document.getElementById('progressText').innerHTML = 
+                'Question <span class="question-number">0</span> of 20';
+            
+            initializeStones();
+            positionPuppy(-1);
+            
+            // Reset stone classes
+            for (let i = 0; i < 20; i++) {
+                const stone = document.getElementById(`stone-${i}`);
+                if (stone) {
+                    stone.classList.remove('completed', 'current');
+                }
+            }
+        }
+
+        // Initialize on load
+        window.onload = () => {
+            initializeStones();
+        };
+    </script>
+</body>
+</html>
